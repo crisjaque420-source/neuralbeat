@@ -495,7 +495,9 @@ input[type=range]::-webkit-slider-thumb{
 .mob-sheet{
   display:none;position:fixed;bottom:0;left:0;right:0;
   background:#0d1b2a;border-top:1px solid rgba(80,180,200,.2);
-  border-radius:14px 14px 0 0;z-index:8000;max-height:70vh;
+  border-radius:14px 14px 0 0;z-index:8000;
+  max-height:75vh;
+  height:75vh;
   flex-direction:column;transform:translateY(100%);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
@@ -504,9 +506,17 @@ input[type=range]::-webkit-slider-thumb{
 .mob-sheet-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
 .mob-tab{flex:1;padding:8px;text-align:center;font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
 .mob-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
-.mob-sheet-body{overflow-y:auto;flex:1;padding:10px;}
-.mob-sheet-body::-webkit-scrollbar{width:2px;}
-.mob-sheet-body::-webkit-scrollbar-thumb{background:var(--muted);}
+.mob-sheet-body{
+  overflow-y:auto;
+  overflow-x:hidden;
+  flex:1;
+  padding:10px;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.mob-sheet-body::-webkit-scrollbar{width:4px;}
+.mob-sheet-body::-webkit-scrollbar-track{background:rgba(0,0,0,.2);}
+.mob-sheet-body::-webkit-scrollbar-thumb{background:var(--muted);border-radius:2px;}
 
 /* ══ SCROLLBAR GLOBAL ═══════════════════════════════ */
 ::-webkit-scrollbar{width:2px;}
@@ -541,6 +551,48 @@ input[type=range]::-webkit-slider-thumb{
     padding:8px 10px 5px;gap:5px;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
+  }
+  
+  /* Mobile preset cards in bottom sheet */
+  .mob-sheet-body .preset-card{
+    margin-bottom:8px;
+    padding:10px 12px;
+  }
+  .mob-sheet-body .pc-head{
+    margin-bottom:4px;
+  }
+  .mob-sheet-body .pc-benefit{
+    font-size:12px;
+    margin-bottom:2px;
+  }
+  .mob-sheet-body .preset-section-hdr{
+    padding:12px 4px 8px;
+    font-size:8px;
+    position:sticky;
+    top:0;
+    background:#0d1b2a;
+    z-index:10;
+    margin:0 -10px;
+    padding-left:14px;
+    padding-right:14px;
+  }
+  .mob-sheet-body .preset-section-hdr:first-child{
+    padding-top:4px;
+  }
+  
+  /* Mobile controls styling */
+  .mob-sheet-body .ctrl-panel{
+    display:flex !important;
+  }
+  .mob-sheet-body .sl-row{
+    margin-bottom:4px;
+  }
+  .mob-sheet-body input[type=range]{
+    height:2px;
+  }
+  .mob-sheet-body input[type=range]::-webkit-slider-thumb{
+    width:14px;
+    height:14px;
   }
   
   .bottom-bar{

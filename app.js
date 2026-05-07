@@ -1125,7 +1125,10 @@ export function closeBib() {
 
 export function openMobSheet(tab) {
   const sheet = document.getElementById('mobSheet');
-  if (sheet) sheet.classList.add('open');
+  if (sheet) {
+    sheet.classList.add('open');
+    mobSwitchTab(tab || 'presets');
+  }
 }
 
 export function closeMobSheet() {
@@ -1135,6 +1138,103 @@ export function closeMobSheet() {
 
 export function mobSwitchTab(tab) {
   console.log('Mobile tab switch:', tab);
+  
+  const tabPresets = document.getElementById('mobTabPresets');
+  const tabControls = document.getElementById('mobTabControls');
+  const body = document.getElementById('mobSheetBody');
+  
+  if (!body) return;
+  
+  // Toggle active tabs
+  if (tabPresets) tabPresets.classList.toggle('active', tab === 'presets');
+  if (tabControls) tabControls.classList.toggle('active', tab === 'controls');
+  
+  if (tab === 'presets') {
+    // Copy presets panel
+    const presetsPanel = document.getElementById('presetsPanel');
+    if (presetsPanel) {
+      body.innerHTML = presetsPanel.innerHTML;
+      
+      // Re-attach click handlers
+      body.querySelectorAll('.preset-card').forEach(card => {
+        const presetId = card.dataset.presetId;
+        if (presetId) {
+          card.addEventListener('click', function(e) {
+            if (e.target.classList.contains('pc-info')) return;
+            window.applyPreset(presetId);
+            window.closeMobSheet();
+          });
+        }
+        
+        // Re-attach info button handlers
+        const infoBtn = card.querySelector('.pc-info');
+        if (infoBtn) {
+          const presetId = card.dataset.presetId;
+          infoBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            window.openWizard(presetId, true);
+          });
+        }
+      });
+    }
+  } else if (tab === 'controls') {
+    // Copy controls panel
+    const ctrlPanel = document.getElementById('ctrlPanel');
+    if (ctrlPanel) {
+      body.innerHTML = ctrlPanel.innerHTML;
+      
+      // Re-attach range input handlers with visual feedback
+      body.querySelectorAll('input[type=range]').forEach(slider => {
+        const origSlider = document.getElementById(slider.id);
+        if (origSlider) {
+          // Sync initial value
+          slider.value = origSlider.value;
+          
+          // Update visual fill
+          updateSliderFill(slider);
+          
+          // Add input handler
+          slider.addEventListener('input', function() {
+            // Sync with original
+            origSlider.value = this.value;
+            origSlider.dispatchEvent(new Event('input', { bubbles: true }));
+            
+            // Update visual fill
+            updateSliderFill(this);
+          });
+        }
+      });
+      
+      // Re-attach toggle handlers
+      body.querySelectorAll('.tog-row').forEach(row => {
+        row.addEventListener('click', function() {
+          const track = this.querySelector('.tog-track');
+          if (track) {
+            const isOn = track.classList.contains('on');
+            track.classList.toggle('on', !isOn);
+            
+            // Sync with original
+            const origTrack = document.querySelector(`.col-left #${track.id}`);
+            if (origTrack) {
+              origTrack.classList.toggle('on', !isOn);
+              // Trigger the original toggle function
+              const toggleName = track.id.replace('t', '').toLowerCase();
+              if (window.tog) window.tog(toggleName);
+            }
+          }
+        });
+      });
+    }
+  }
+}
+
+// Helper function to update slider visual fill
+function updateSliderFill(slider) {
+  const min = parseFloat(slider.min) || 0;
+  const max = parseFloat(slider.max) || 100;
+  const value = parseFloat(slider.value) || 0;
+  const percentage = ((value - min) / (max - min)) * 100;
+  slider.style.setProperty('--fill', `${percentage}%`);
 }
 
 export function handleOverlayClick(event) {
