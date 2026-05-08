@@ -7,7 +7,7 @@ import { PRESETS } from './presets.js';
 import { initAC, startBinaural, startTone, stopBinaural, startNoise, stopNoise, beep, setVolume, getAC, getMasterGain, resumeAC, whRecoveryTone, whRetentionTick, whReleaseBeep } from './audio.js';
 import { BREATH_PRESETS, WH_DEFAULT, getPhaseDuration, getPhaseSequence, breathDur } from './breath.js';
 import { I18N } from './i18n.js';
-import { initViz, setViz, resizeCanvas, initAnalyser, animateViz } from './viz.js';
+import { initViz, setViz, resizeCanvas, initAnalyser, animateViz, stopViz } from './viz.js';
 
 // ─── STATE ──────────────────────────────────────────────────────────
 export const S = {
@@ -270,6 +270,54 @@ function updateSliderDisplays() {
   updateSliderFill('sCarrier', S.carrier, 100, 500);
   updateSliderFill('sBeat', S.beat, 0.5, 40);
   updateSliderFill('sVol', S.vol * 100, 0, 100);
+  
+  // También actualizar en mobile sheet si está abierto
+  const mobSheet = document.getElementById('mobSheet');
+  if (mobSheet && mobSheet.classList.contains('open')) {
+    console.log('📱 Updating mobile sheet displays');
+    const mobBody = document.getElementById('mobSheetBody');
+    if (mobBody) {
+      // Actualizar valores mostrados en mobile
+      const mobVBpm = mobBody.querySelector('#vBpm');
+      const mobVRatio = mobBody.querySelector('#vRatio');
+      const mobVHoldFull = mobBody.querySelector('#vHoldFull');
+      const mobVHoldEmpty = mobBody.querySelector('#vHoldEmpty');
+      const mobVCarrier = mobBody.querySelector('#vCarrier');
+      const mobVBeat = mobBody.querySelector('#vBeat');
+      const mobVVol = mobBody.querySelector('#vVol');
+      
+      console.log('📱 Found mobile value displays:', {
+        mobVBpm: !!mobVBpm,
+        mobVCarrier: !!mobVCarrier,
+        mobVBeat: !!mobVBeat
+      });
+      
+      if (mobVBpm) mobVBpm.textContent = S.bpm.toFixed(1);
+      if (mobVRatio) mobVRatio.textContent = `1:${(1/S.ratio).toFixed(1)}`;
+      if (mobVHoldFull) mobVHoldFull.textContent = `${S.holdFull}s`;
+      if (mobVHoldEmpty) mobVHoldEmpty.textContent = `${S.holdEmpty}s`;
+      if (mobVCarrier) mobVCarrier.textContent = `${S.carrier} Hz`;
+      if (mobVBeat) mobVBeat.textContent = `${S.beat.toFixed(1)} Hz`;
+      if (mobVVol) mobVVol.textContent = `${Math.round(S.vol * 100)}%`;
+      
+      // Actualizar sliders en mobile
+      const mobSBpm = mobBody.querySelector('#sBpm');
+      const mobSRatio = mobBody.querySelector('#sRatio');
+      const mobSHoldFull = mobBody.querySelector('#sHoldFull');
+      const mobSHoldEmpty = mobBody.querySelector('#sHoldEmpty');
+      const mobSCarrier = mobBody.querySelector('#sCarrier');
+      const mobSBeat = mobBody.querySelector('#sBeat');
+      const mobSVol = mobBody.querySelector('#sVol');
+      
+      if (mobSBpm) { mobSBpm.value = S.bpm; updateSliderFillElement(mobSBpm); }
+      if (mobSRatio) { mobSRatio.value = S.ratio; updateSliderFillElement(mobSRatio); }
+      if (mobSHoldFull) { mobSHoldFull.value = S.holdFull; updateSliderFillElement(mobSHoldFull); }
+      if (mobSHoldEmpty) { mobSHoldEmpty.value = S.holdEmpty; updateSliderFillElement(mobSHoldEmpty); }
+      if (mobSCarrier) { mobSCarrier.value = S.carrier; updateSliderFillElement(mobSCarrier); }
+      if (mobSBeat) { mobSBeat.value = S.beat; updateSliderFillElement(mobSBeat); }
+      if (mobSVol) { mobSVol.value = S.vol * 100; updateSliderFillElement(mobSVol); }
+    }
+  }
 }
 
 // Helper para actualizar el --fill visual del slider
@@ -278,6 +326,39 @@ function updateSliderFill(id, value, min, max) {
   if (slider) {
     const percent = ((value - min) / (max - min)) * 100;
     slider.style.setProperty('--fill', `${percent}%`);
+  }
+}
+
+// Helper para actualizar el --fill visual del slider (versión con elemento)
+function updateSliderFillElement(slider) {
+  if (!slider) return;
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const value = parseFloat(slider.value);
+  const percent = ((value - min) / (max - min)) * 100;
+  slider.style.setProperty('--fill', `${percent}%`);
+}
+
+// Helper para formatear valores de sliders
+function formatSliderValue(id, value) {
+  const val = parseFloat(value);
+  switch (id) {
+    case 'sBpm':
+      return val.toFixed(1);
+    case 'sRatio':
+      return val.toFixed(1);
+    case 'sHoldFull':
+      return val === 0 ? '0' : `${val}s`;
+    case 'sHoldEmpty':
+      return val === 0 ? '0' : `${val}s`;
+    case 'sCarrier':
+      return `${Math.round(val)} Hz`;
+    case 'sBeat':
+      return `${val.toFixed(1)} Hz`;
+    case 'sVol':
+      return `${Math.round(val)}%`;
+    default:
+      return val.toString();
   }
 }
 
@@ -371,6 +452,7 @@ export function togglePlay() {
     stopBinaural();
     stopNoise();
     stopBreathing();
+    stopViz(); // Detener visualizaciones
     
     // Detener contador de sesión
     if (sessionIV) {
@@ -1325,24 +1407,35 @@ export function mobSwitchTab(tab) {
     if (ctrlPanel) {
       body.innerHTML = ctrlPanel.innerHTML;
       
+      console.log('📱 Mobile controls loaded');
+      
       // Re-attach range input handlers with visual feedback
       body.querySelectorAll('input[type=range]').forEach(slider => {
+        console.log('📱 Setting up slider:', slider.id, 'value:', slider.value);
+        
         const origSlider = document.getElementById(slider.id);
         if (origSlider) {
           // Sync initial value
           slider.value = origSlider.value;
           
           // Update visual fill
-          updateSliderFill(slider);
+          updateSliderFillElement(slider);
           
           // Add input handler
           slider.addEventListener('input', function() {
-            // Sync with original
-            origSlider.value = this.value;
-            origSlider.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log('📱 Slider changed:', this.id, 'new value:', this.value);
             
-            // Update visual fill
-            updateSliderFill(this);
+            // Update state via onSliderChange (esto actualiza S y los displays)
+            window.onSliderChange(this.id, this.value);
+            
+            // Update visual fill del slider mobile
+            updateSliderFillElement(this);
+            
+            console.log('📱 After update, S state:', {
+              bpm: S.bpm,
+              carrier: S.carrier,
+              beat: S.beat
+            });
           });
         }
       });
@@ -1352,17 +1445,11 @@ export function mobSwitchTab(tab) {
         row.addEventListener('click', function() {
           const track = this.querySelector('.tog-track');
           if (track) {
-            const isOn = track.classList.contains('on');
-            track.classList.toggle('on', !isOn);
+            const toggleName = track.id.replace('t', '').charAt(0).toUpperCase() + track.id.replace('t', '').slice(1);
+            window.tog(toggleName.toLowerCase());
             
-            // Sync with original
-            const origTrack = document.querySelector(`.col-left #${track.id}`);
-            if (origTrack) {
-              origTrack.classList.toggle('on', !isOn);
-              // Trigger the original toggle function
-              const toggleName = track.id.replace('t', '').toLowerCase();
-              if (window.tog) window.tog(toggleName);
-            }
+            // Update visual state
+            track.classList.toggle('on');
           }
         });
       });
