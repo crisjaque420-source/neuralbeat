@@ -102,6 +102,16 @@ export const I18N = {
     tagRetFull: 'Retención llena',
     tagRetEmpty: 'Retención vacía',
     tagWimHofRet: '30 respiraciones + retención',
+    
+    // Bibliography / Science section
+    bibTitle: 'Base Científica',
+    bibSub: 'Literatura revisada · 2025–2026',
+    bibTabBinaural: 'Frecuencias Binaurales',
+    bibTabPranayama: 'Pranayama & EEG',
+    bibTabVago: 'Nervio Vago & HRV',
+    bibTabLcr: 'LCR & Respiración',
+    bibClose: 'Cerrar',
+    bibDisclaimer: 'Herramienta educativa y de bienestar. No constituye diagnóstico médico. Consulta a un profesional ante cualquier condición de salud.',
   },
 
   en: {
@@ -190,6 +200,16 @@ export const I18N = {
     tagRetFull: 'Full retention',
     tagRetEmpty: 'Empty retention',
     tagWimHofRet: '30 breaths + retention',
+    
+    // Bibliography / Science section
+    bibTitle: 'Scientific Foundation',
+    bibSub: 'Peer-reviewed literature · 2025–2026',
+    bibTabBinaural: 'Binaural Frequencies',
+    bibTabPranayama: 'Pranayama & EEG',
+    bibTabVago: 'Vagus Nerve & HRV',
+    bibTabLcr: 'CSF & Breathing',
+    bibClose: 'Close',
+    bibDisclaimer: 'Educational and wellness tool. Not a medical diagnosis. Consult a professional for any health condition.',
   },
 
   fr: {
@@ -273,6 +293,16 @@ export const I18N = {
     tagRetFull: 'Rétention pleine',
     tagRetEmpty: 'Rétention vide',
     tagWimHofRet: '30 respirations + rétention',
+    
+    // Bibliography / Science section
+    bibTitle: 'Base Scientifique',
+    bibSub: 'Littérature révisée · 2025–2026',
+    bibTabBinaural: 'Fréquences Binaurales',
+    bibTabPranayama: 'Pranayama & EEG',
+    bibTabVago: 'Nerf Vague & HRV',
+    bibTabLcr: 'LCR & Respiration',
+    bibClose: 'Fermer',
+    bibDisclaimer: 'Outil éducatif et de bien-être. Ne constitue pas un diagnostic médical. Consultez un professionnel pour toute condition de santé.',
   },
 
   pt: {
@@ -356,6 +386,16 @@ export const I18N = {
     tagRetFull: 'Retenção cheia',
     tagRetEmpty: 'Retenção vazia',
     tagWimHofRet: '30 respirações + retenção',
+    
+    // Bibliography / Science section
+    bibTitle: 'Base Científica',
+    bibSub: 'Literatura revisada · 2025–2026',
+    bibTabBinaural: 'Frequências Binaurais',
+    bibTabPranayama: 'Pranayama & EEG',
+    bibTabVago: 'Nervo Vago & HRV',
+    bibTabLcr: 'LCR & Respiração',
+    bibClose: 'Fechar',
+    bibDisclaimer: 'Ferramenta educacional e de bem-estar. Não constitui diagnóstico médico. Consulte um profissional para qualquer condição de saúde.',
   },
 
   zh: {
@@ -463,6 +503,16 @@ export const I18N = {
     wizPrev: '← 上一步',
     wizNext: '下一步 →',
     wizApply: '应用预设 ↗',
+    
+    // Bibliography / Science section
+    bibTitle: '科学基础',
+    bibSub: '同行评审文献 · 2025–2026',
+    bibTabBinaural: '双耳节拍频率',
+    bibTabPranayama: '调息法与脑电图',
+    bibTabVago: '迷走神经与心率变异性',
+    bibTabLcr: '脑脊液与呼吸',
+    bibClose: '关闭',
+    bibDisclaimer: '教育和健康工具。不构成医学诊断。如有任何健康状况，请咨询专业人士。',
   },
 
   hi: {
@@ -567,5 +617,15 @@ export const I18N = {
     wizPrev: '← पिछला',
     wizNext: 'अगला →',
     wizApply: 'प्रीसेट लागू करें ↗',
+    
+    // Bibliography / Science section
+    bibTitle: 'वैज्ञानिक आधार',
+    bibSub: 'समीक्षित साहित्य · 2025–2026',
+    bibTabBinaural: 'बाइनॉरल आवृत्तियाँ',
+    bibTabPranayama: 'प्राणायाम और ईईजी',
+    bibTabVago: 'वेगस तंत्रिका और एचआरवी',
+    bibTabLcr: 'सीएसएफ और श्वास',
+    bibClose: 'बंद करें',
+    bibDisclaimer: 'शैक्षिक और कल्याण उपकरण। चिकित्सा निदान नहीं है। किसी भी स्वास्थ्य स्थिति के लिए पेशेवर से परामर्श करें।',
   },
 };
