@@ -48,6 +48,107 @@ export function setLang(lang) {
   localStorage.setItem('coherencia_lang', lang);
 }
 
+// ─── THEME SYSTEM ───────────────────────────────────────────────────
+/**
+ * setTheme(theme) — Cambia el tema visual de la aplicación
+ * Temas disponibles: 'cyber', 'forest', 'warm', 'ocean'
+ */
+export function setTheme(theme) {
+  const validThemes = ['cyber', 'forest', 'warm', 'ocean'];
+  if (!validThemes.includes(theme)) return;
+  
+  // Aplicar data-theme al html root
+  document.documentElement.setAttribute('data-theme', theme);
+  
+  // Actualizar botones activos
+  document.querySelectorAll('.theme-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.theme === theme));
+  
+  // Guardar preferencia
+  localStorage.setItem('coherencia_theme', theme);
+  
+  console.log(`🎨 Theme changed to: ${theme}`);
+}
+
+// Cargar tema guardado al iniciar
+function loadSavedTheme() {
+  const saved = localStorage.getItem('coherencia_theme');
+  if (saved) {
+    setTheme(saved);
+  }
+}
+
+// ─── OPTIONS MENU ───────────────────────────────────────────────────
+/**
+ * toggleOptionsMenu() — Abre/cierra el menú de opciones
+ */
+export function toggleOptionsMenu() {
+  const menu = document.getElementById('optionsMenu');
+  if (menu) {
+    menu.classList.toggle('open');
+  }
+}
+
+// Cerrar menú al hacer click fuera
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('optionsMenu');
+  const btn = document.getElementById('optionsBtn');
+  if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+// ─── MOBILE MENU (tipo Claude) ──────────────────────────────────────
+/**
+ * openMobMenu() — Abre el menú mobile tipo Claude
+ */
+export function openMobMenu() {
+  const overlay = document.getElementById('mobMenuOverlay');
+  const panel = document.getElementById('mobMenuPanel');
+  if (overlay && panel) {
+    overlay.classList.add('open');
+    panel.style.display = 'block';
+    // Trigger reflow para animación
+    setTimeout(() => panel.classList.add('open'), 10);
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+/**
+ * closeMobMenu() — Cierra el menú mobile
+ */
+export function closeMobMenu() {
+  const overlay = document.getElementById('mobMenuOverlay');
+  const panel = document.getElementById('mobMenuPanel');
+  if (overlay && panel) {
+    overlay.classList.remove('open');
+    panel.classList.remove('open');
+    setTimeout(() => panel.style.display = 'none', 300);
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+  }
+}
+
+/**
+ * updateMobMenuTheme() — Actualiza botones activos de tema en mobile menu
+ */
+export function updateMobMenuTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyber';
+  document.querySelectorAll('.mob-menu-theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === currentTheme);
+  });
+}
+
+/**
+ * updateMobMenuLang() — Actualiza botones activos de idioma en mobile menu
+ */
+export function updateMobMenuLang() {
+  document.querySelectorAll('.mob-menu-lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === LANG);
+  });
+}
+
 function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
@@ -160,6 +261,24 @@ function updateSliderDisplays() {
   if (vCarrier) vCarrier.textContent = `${S.carrier} Hz`;
   if (vBeat) vBeat.textContent = `${S.beat.toFixed(1)} Hz`;
   if (vVol) vVol.textContent = `${Math.round(S.vol * 100)}%`;
+  
+  // Actualizar --fill de los sliders
+  updateSliderFill('sBpm', S.bpm, 1, 30);
+  updateSliderFill('sRatio', S.ratio, 0.1, 3.0);
+  updateSliderFill('sHoldFull', S.holdFull, 0, 30);
+  updateSliderFill('sHoldEmpty', S.holdEmpty, 0, 120);
+  updateSliderFill('sCarrier', S.carrier, 100, 500);
+  updateSliderFill('sBeat', S.beat, 0.5, 40);
+  updateSliderFill('sVol', S.vol * 100, 0, 100);
+}
+
+// Helper para actualizar el --fill visual del slider
+function updateSliderFill(id, value, min, max) {
+  const slider = document.getElementById(id);
+  if (slider) {
+    const percent = ((value - min) / (max - min)) * 100;
+    slider.style.setProperty('--fill', `${percent}%`);
+  }
 }
 
 // ─── UPDATE READOUT ─────────────────────────────────────────────────
@@ -237,6 +356,12 @@ export function togglePlay() {
     const statusTxt = document.getElementById('statusTxt');
     if (statusTxt) statusTxt.textContent = t('statusActive');
     
+    // Update mobile menu status
+    const mobStatusDot = document.getElementById('mobStatusDot');
+    const mobStatusTxt = document.getElementById('mobStatusTxt');
+    if (mobStatusDot) mobStatusDot.classList.add('live');
+    if (mobStatusTxt) mobStatusTxt.textContent = t('statusActive');
+    
     const whRow = document.getElementById('whRow');
     if (whRow && S.breathPreset === 'wimhof') {
       whRow.classList.add('visible');
@@ -259,6 +384,12 @@ export function togglePlay() {
     
     const statusTxt = document.getElementById('statusTxt');
     if (statusTxt) statusTxt.textContent = t('statusInactive');
+    
+    // Update mobile menu status
+    const mobStatusDot = document.getElementById('mobStatusDot');
+    const mobStatusTxt = document.getElementById('mobStatusTxt');
+    if (mobStatusDot) mobStatusDot.classList.remove('live');
+    if (mobStatusTxt) mobStatusTxt.textContent = t('statusInactive');
     
     const whRow = document.getElementById('whRow');
     if (whRow) whRow.classList.remove('visible');
@@ -873,6 +1004,9 @@ export function switchLeftTab(tab) {
 
 // ─── INIT ───────────────────────────────────────────────────────────
 export function init() {
+  // Cargar tema guardado
+  loadSavedTheme();
+  
   // Cargar idioma guardado
   const savedLang = localStorage.getItem('coherencia_lang') || 'es';
   setLang(savedLang);
@@ -888,7 +1022,15 @@ export function init() {
   sliders.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener('input', (e) => onSliderChange(id, e.target.value));
+      el.addEventListener('input', (e) => {
+        onSliderChange(id, e.target.value);
+        // Actualizar --fill en tiempo real
+        const min = parseFloat(e.target.min);
+        const max = parseFloat(e.target.max);
+        const value = parseFloat(e.target.value);
+        const percent = ((value - min) / (max - min)) * 100;
+        e.target.style.setProperty('--fill', `${percent}%`);
+      });
     }
   });
 
@@ -1226,15 +1368,6 @@ export function mobSwitchTab(tab) {
       });
     }
   }
-}
-
-// Helper function to update slider visual fill
-function updateSliderFill(slider) {
-  const min = parseFloat(slider.min) || 0;
-  const max = parseFloat(slider.max) || 100;
-  const value = parseFloat(slider.value) || 0;
-  const percentage = ((value - min) / (max - min)) * 100;
-  slider.style.setProperty('--fill', `${percentage}%`);
 }
 
 export function handleOverlayClick(event) {
