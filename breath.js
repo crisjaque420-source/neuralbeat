@@ -94,10 +94,25 @@ export const WH_DEFAULT = {
 // ─── CÁLCULO DE DURACIONES ───────────────────────────
 export function breathDur(S) {
   const cycleMs = (60 / S.bpm) * 1000;
+  const tech = BREATH_PRESETS[S.breathPreset] || BREATH_PRESETS.coherencia;
+  
+  // Solo restar retenciones si están incluidas en la secuencia del preset
+  let holdFullMs = 0;
+  let holdEmptyMs = 0;
+  
+  if (tech.sequence.includes('holdFull')) {
+    holdFullMs = (tech.getHoldFull(S) || 0) * 1000;
+  }
+  if (tech.sequence.includes('holdEmpty')) {
+    holdEmptyMs = (tech.getHoldEmpty(S) || 0) * 1000;
+  }
+  
+  const breathingTimeMs = cycleMs - holdFullMs - holdEmptyMs;
+  
   const r = S.ratio;
   return {
-    inhale: cycleMs * (r / (r + 1)),
-    exhale: cycleMs * (1 / (r + 1)),
+    inhale: breathingTimeMs * (r / (r + 1)),
+    exhale: breathingTimeMs * (1 / (r + 1)),
   };
 }
 
